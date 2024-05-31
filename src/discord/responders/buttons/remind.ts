@@ -9,3 +9,4 @@ new Responder({
         interaction.reply({ ephemeral, content: `You run ping command ${time(date, "R")}` });
     },
 });
+
