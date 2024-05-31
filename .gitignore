@@ -1,3 +1,26 @@
+# Folders
+/dist
+/discloud
+/deprecated
+/node_modules
+
+# Files
+/.env
+/.env.development
+/.env.example
+/package-lock.json
+
+# Config files
+/firebase.json
+/discloud.config
+
+# Extensions
+*.zip
+*.sqlite
+*.exe
+*.db
+*.development.json
+
 # Logs
 logs
 *.log
@@ -75,6 +98,7 @@ web_modules/
 # dotenv environment variable files
 .env
 .env.development.local
+.env.example
 .env.test.local
 .env.production.local
 .env.local
