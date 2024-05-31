@@ -1,18 +1,38 @@
 import { Responder, ResponderType } from "#base";
 import { createRow } from "@magicyan/discord";
-import { StringSelectMenuBuilder, StringSelectMenuInteraction, PermissionsBitField } from "discord.js";
+import {
+    CacheType,
+    ChatInputCommandInteraction,
+    MessageComponentInteraction,
+    PermissionsBitField,
+    StringSelectMenuBuilder,
+    StringSelectMenuInteraction,
+} from "discord.js";
 
 new Responder({
     customId: "manage/user/:userId/:action",
     type: ResponderType.Row,
     cache: "cached",
-    async run(interaction, { userId, action }) {
+    async run(interaction: ChatInputCommandInteraction<CacheType> | MessageComponentInteraction<CacheType>, { userId, action }) {
         const { guild } = interaction;
 
-        const mention = guild.members.cache.get(userId);
+        const mention = guild?.members.cache.get(userId);
+
+        const deleteAfterTimeout = async (interaction: ChatInputCommandInteraction<CacheType> | MessageComponentInteraction<CacheType>) => {
+            setTimeout(async () => {
+                try {
+                    if (interaction.replied || interaction.deferred) {
+                        await interaction.deleteReply();
+                    }
+                } catch (error) {
+                    console.error('Failed to delete reply:', error);
+                }
+            }, 60000); // 60 segundos
+        };
 
         if (!mention) {
             await interaction.reply({ ephemeral: true, content: 'User not found.' });
+            deleteAfterTimeout(interaction);
             return;
         }
 
@@ -21,18 +41,23 @@ new Responder({
                 try {
                     await interaction.reply({ ephemeral: true, content: `${mention} has been alerted.` });
                     await mention.send("You have been alerted. Please review your behavior to avoid further issues.");
+                    deleteAfterTimeout(interaction);
                 } catch (error) {
                     await interaction.reply({ ephemeral: true, content: `Failed to send alert to ${mention}.` });
+                    deleteAfterTimeout(interaction);
                 }
                 return;
             case "ban":
                 await interaction.reply({ ephemeral: true, content: `${mention} has been banned.` });
+                deleteAfterTimeout(interaction);
                 return;
             case "kickout":
                 await interaction.reply({ ephemeral: true, content: `${mention} has been kicked.` });
+                deleteAfterTimeout(interaction);
                 return;
             case "punishment":
                 await interaction.reply({ ephemeral: true, content: `${mention} has been punished.` });
+                deleteAfterTimeout(interaction);
                 return;
             case "mute": {
                 const row = createRow(
@@ -60,6 +85,7 @@ new Responder({
                         ])
                 );
                 await interaction.reply({ ephemeral: true, content: `${mention} has been muted. Please select the mute duration:`, components: [row] });
+                deleteAfterTimeout(interaction);
                 return;
             }
             case "time": {
@@ -67,41 +93,76 @@ new Responder({
                 const duration = parseInt(selected, 10) * 1000;
 
                 if (!mention) {
-                    await interaction.update({
-                        content: "This member is no longer part of the server.",
-                        components: [],
-                    });
+                    if (interaction.isMessageComponent()) {
+                        await interaction.update({
+                            content: "This member is no longer part of the server.",
+                            components: [],
+                        });
+                    } else {
+                        await interaction.editReply({
+                            content: "This member is no longer part of the server.",
+                        });
+                    }
+                    deleteAfterTimeout(interaction);
                     return;
                 }
 
-                if (interaction.member.id === mention.id) {
-                    await interaction.update({
-                        content: "You cannot apply a timeout to yourself.",
-                        components: [],
-                    });
+                if ((interaction.member as any).id === mention.id) {
+                    if (interaction.isMessageComponent()) {
+                        await interaction.update({
+                            content: "You cannot apply a timeout to yourself.",
+                            components: [],
+                        });
+                    } else {
+                        await interaction.editReply({
+                            content: "You cannot apply a timeout to yourself.",
+                        });
+                    }
+                    deleteAfterTimeout(interaction);
                     return;
                 }
 
-                const selfMember = interaction.guild.members.me;
+                const selfMember = interaction.guild!.members.me;
                 if (!selfMember || !selfMember.permissions.has(PermissionsBitField.Flags.ModerateMembers)) {
-                    await interaction.update({
-                        content: "I do not have permission to apply timeouts to members.",
-                        components: [],
-                    });
+                    if (interaction.isMessageComponent()) {
+                        await interaction.update({
+                            content: "I do not have permission to apply timeouts to members.",
+                            components: [],
+                        });
+                    } else {
+                        await interaction.editReply({
+                            content: "I do not have permission to apply timeouts to members.",
+                        });
+                    }
+                    deleteAfterTimeout(interaction);
                     return;
                 }
 
                 try {
                     await mention.timeout(duration, "Timeout applied via management command.");
-                    await interaction.update({
-                        content: `${mention} has been muted for ${selected} seconds.`,
-                        components: []
-                    });
+                    if (interaction.isMessageComponent()) {
+                        await interaction.update({
+                            content: `${mention} has been muted for ${selected} seconds.`,
+                            components: [],
+                        });
+                    } else {
+                        await interaction.editReply({
+                            content: `${mention} has been muted for ${selected} seconds.`,
+                        });
+                    }
+                    deleteAfterTimeout(interaction);
                 } catch (error) {
-                    await interaction.update({
-                        content: `Failed to mute ${mention}.`,
-                        components: []
-                    });
+                    if (interaction.isMessageComponent()) {
+                        await interaction.update({
+                            content: `Failed to mute ${mention}.`,
+                            components: [],
+                        });
+                    } else {
+                        await interaction.editReply({
+                            content: `Failed to mute ${mention}.`,
+                        });
+                    }
+                    deleteAfterTimeout(interaction);
                 }
                 return;
             }
@@ -109,12 +170,15 @@ new Responder({
                 try {
                     await mention.timeout(null, "Unmute applied via management command.");
                     await interaction.reply({ ephemeral: true, content: `${mention} has been unmuted.` });
+                    deleteAfterTimeout(interaction);
                 } catch (error) {
                     await interaction.reply({ ephemeral: true, content: `Failed to unmute ${mention}.` });
+                    deleteAfterTimeout(interaction);
                 }
                 return;
             default:
                 await interaction.reply({ ephemeral: true, content: 'Action not recognized.' });
+                deleteAfterTimeout(interaction);
                 return;
         }
     },
