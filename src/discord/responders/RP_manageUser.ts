@@ -36,10 +36,10 @@ new Responder({
                 return;
             case "mute": {
                 const row = createRow(
-                    new StringSelectMenuBuilder({
-                        customId: `manage/user/${mention.id}/time`,
-                        placeholder: "Select Time",
-                        options: [
+                    new StringSelectMenuBuilder()
+                        .setCustomId(`manage/user/${mention.id}/time`)
+                        .setPlaceholder("Select Time")
+                        .addOptions([
                             { label: "60 Seconds", value: "60" },
                             { label: "2 Minutes", value: "120" },
                             { label: "5 Minutes", value: "300" },
@@ -57,10 +57,9 @@ new Responder({
                             { label: "3 Days", value: "259200" },
                             { label: "5 Days", value: "432000" },
                             { label: "1 Week", value: "604800" }
-                        ]
-                    })
+                        ])
                 );
-                await interaction.update({ components: [row] });
+                await interaction.reply({ ephemeral: true, content: `${mention} has been muted. Please select the mute duration:`, components: [row] });
                 return;
             }
             case "time": {
@@ -94,9 +93,15 @@ new Responder({
 
                 try {
                     await mention.timeout(duration, "Timeout applied via management command.");
-                    await interaction.update({ content: `${mention} has been muted for ${selected} seconds.`, components: [] });
+                    await interaction.update({
+                        content: `${mention} has been muted for ${selected} seconds.`,
+                        components: []
+                    });
                 } catch (error) {
-                    await interaction.update({ content: `Failed to mute ${mention}.`, components: [] });
+                    await interaction.update({
+                        content: `Failed to mute ${mention}.`,
+                        components: []
+                    });
                 }
                 return;
             }
