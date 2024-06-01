@@ -27,7 +27,7 @@ new Responder({
                 } catch (error) {
                     console.error('Failed to delete reply:', error);
                 }
-            }, 60000); // 60 segundos
+            }, 60000); 
         };
 
         if (!mention) {

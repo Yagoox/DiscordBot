@@ -16,7 +16,7 @@ new Command({
         const { targetId } = interaction;
 
         const embed = new EmbedBuilder()
-            .setColor('#d3c4a3')  // Usar cor bege
+            .setColor('#d3c4a3')  
             .setTitle("User Management Panel")
             .setDescription(`Manage actions for user <@${targetId}>.`)
             .addFields(
