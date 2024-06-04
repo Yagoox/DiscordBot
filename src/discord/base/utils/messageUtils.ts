@@ -7,7 +7,7 @@ import {
 
 export const deleteAfterTimeout = async (
     interaction: ChatInputCommandInteraction<CacheType> | MessageComponentInteraction<CacheType> | UserContextMenuCommandInteraction<CacheType>,
-    timeout: number = 9000
+    timeout: number = 50000
 ) => {
     setTimeout(async () => {
         try {
