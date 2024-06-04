@@ -1,4 +1,4 @@
-import { Command } from "#base";
+import { Command, deleteAfterTimeout } from "#base";
 import { createRow } from "@magicyan/discord";
 import { ApplicationCommandType, ButtonBuilder, ButtonStyle } from "discord.js";
 
@@ -8,7 +8,6 @@ new Command({
 	type: ApplicationCommandType.ChatInput,
 	run(interaction){
 		const row = createRow(
-			// ../../components/buttons/remind.ts
 			new ButtonBuilder({ 
 				customId: `remind/${new Date().toISOString()}`,
 				label: "Ping",
@@ -17,5 +16,6 @@ new Command({
 		);
 
 		interaction.reply({ fetchReply, ephemeral, content: "pong", components: [row] });
+		deleteAfterTimeout(interaction);
 	}
 });

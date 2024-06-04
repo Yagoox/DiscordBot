@@ -1,4 +1,4 @@
-import { Responder, ResponderType } from "#base";
+import { Responder, ResponderType, deleteAfterTimeout } from "#base";
 import { createRow } from "@magicyan/discord";
 import {
     CacheType,
@@ -17,18 +17,6 @@ new Responder({
         const { guild } = interaction;
 
         const mention = guild?.members.cache.get(userId);
-
-        const deleteAfterTimeout = async (interaction: ChatInputCommandInteraction<CacheType> | MessageComponentInteraction<CacheType>) => {
-            setTimeout(async () => {
-                try {
-                    if (interaction.replied || interaction.deferred) {
-                        await interaction.deleteReply();
-                    }
-                } catch (error) {
-                    console.error('Failed to delete reply:', error);
-                }
-            }, 60000); 
-        };
 
         if (!mention) {
             await interaction.reply({ ephemeral: true, content: 'User not found.' });

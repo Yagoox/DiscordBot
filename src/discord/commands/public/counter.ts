@@ -1,4 +1,4 @@
-import { Command, Responder, ResponderType } from "#base";
+import { Command, Responder, ResponderType, deleteAfterTimeout } from "#base";
 import { createEmbed, createEmbedAuthor, createRow } from "@magicyan/discord";
 import { ApplicationCommandType, ButtonBuilder, ButtonStyle, User } from "discord.js";
 
@@ -8,6 +8,7 @@ new Command({
     type: ApplicationCommandType.ChatInput,
     run(interaction) {
         interaction.reply(counterMenu(interaction.user, 0));
+        deleteAfterTimeout(interaction);
     },
 });
 
@@ -19,6 +20,7 @@ new Responder({
         const updated = params.action === "add" ? current + 1 : current - 1;
 
         interaction.update(counterMenu(interaction.user, updated));
+        deleteAfterTimeout(interaction);
     },
 });
 

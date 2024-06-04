@@ -1,4 +1,4 @@
-import { Command } from "#base";
+import { Command, deleteAfterTimeout } from "#base";
 import { createRow } from "@magicyan/discord";
 import { ApplicationCommandType, ButtonBuilder, ButtonStyle, PermissionsBitField, EmbedBuilder } from "discord.js";
 
@@ -53,5 +53,6 @@ new Command({
         );
 
         await interaction.reply({ ephemeral: true, embeds: [embed], components: [row] });
+        deleteAfterTimeout(interaction);
     }
 });

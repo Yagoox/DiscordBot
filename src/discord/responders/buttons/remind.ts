@@ -1,4 +1,4 @@
-import { Responder, ResponderType } from "#base";
+import { Responder, ResponderType, deleteAfterTimeout } from "#base";
 import { time } from "discord.js";
 
 new Responder({
@@ -7,6 +7,7 @@ new Responder({
     run(interaction, params) {
         const date = new Date(params.date);
         interaction.reply({ ephemeral, content: `You run ping command ${time(date, "R")}` });
+        deleteAfterTimeout(interaction);
     },
 });
 
