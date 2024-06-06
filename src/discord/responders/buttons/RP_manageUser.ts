@@ -36,12 +36,24 @@ new Responder({
                 }
                 return;
             case "ban":
-                await interaction.reply({ ephemeral: true, content: `${mention} has been banned.` });
-                deleteAfterTimeout(interaction);
+                try {
+                    await mention.ban({ reason: 'Banned via manage user command.' });
+                    await interaction.reply({ ephemeral: true, content: `${mention} has been banned.` });
+                    deleteAfterTimeout(interaction);
+                } catch (error) {
+                    await interaction.reply({ ephemeral: true, content: `Failed to ban ${mention}.` });
+                    deleteAfterTimeout(interaction);
+                }
                 return;
             case "kickout":
-                await interaction.reply({ ephemeral: true, content: `${mention} has been kicked.` });
-                deleteAfterTimeout(interaction);
+                try {
+                    await mention.kick('Kicked via manage user command.');
+                    await interaction.reply({ ephemeral: true, content: `${mention} has been kicked.` });
+                    deleteAfterTimeout(interaction);
+                } catch (error) {
+                    await interaction.reply({ ephemeral: true, content: `Failed to kick ${mention}.` });
+                    deleteAfterTimeout(interaction);
+                }
                 return;
             case "punishment":
                 await interaction.reply({ ephemeral: true, content: `${mention} has been punished.` });
